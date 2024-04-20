@@ -159,15 +159,11 @@ class Button {
         this.button.textContent = text;
         this.button.style.position = 'absolute'; // Position it as needed
         this.button.style.top = '10px'; // Change as needed
-        this.button.style.left = `${10 + 100 * Object.keys(GameState).indexOf(id.replace('Button', '').toUpperCase())}px`; // Example dynamic positioning
+        this.button.style.left = `${300 + 100 * Object.keys(GameState).indexOf(id.replace('Button', '').toUpperCase())}px`; // Example dynamic positioning
         this.button.addEventListener('click', onClick);
         document.body.appendChild(this.button);
     }
 }
-
-new Button('gameButton', 'Start Game', () => {
-    changeState(GameState.GAME);
-});
 
 new Button('homeButton', 'Home', () => {
     changeState(GameState.HOME);
@@ -191,7 +187,7 @@ function setupMapButtons() {
 
     // Create new buttons
     mapButtons.push(new Button('level1Button', 'Level 1', () => {
-        console.log("Level 1 Selected");
+        changeState(GameState.GAME);        
     }));
     mapButtons.push(new Button('level2Button', 'Level 2', () => {
         console.log("Level 2 Selected");
@@ -200,10 +196,13 @@ function setupMapButtons() {
         console.log("Level 3 Selected");
     }));
 
-    // Position buttons specifically for the map state
+    // Calculate the vertical offset to center buttons
+    const centerTop = window.innerHeight / 2 - (mapButtons.length * 60 / 2); // Assuming button height is less than 60px
+
+    // Position each button in the center of the page
     mapButtons.forEach((button, index) => {
-        button.button.style.top = `${50 + index * 60}px`;
-        button.button.style.left = '10px';
+        button.button.style.top = `${centerTop + index * 60}px`; // Adjust spacing by 60px per button
+        button.button.style.left = `${window.innerWidth / 2 - button.button.offsetWidth / 2}px`; // Center horizontally
     });
 }
 
