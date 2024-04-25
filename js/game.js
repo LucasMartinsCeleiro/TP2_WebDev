@@ -32,6 +32,8 @@ Logic and core of the application
  ---------------------------------------- */
 
 var animationFrameId;
+var currentLevelData = {};
+var currentMusic = new Audio();
 
 function gameLoop() {
     update();
@@ -87,7 +89,16 @@ function renderHomeScreen() {
 }
 
 function renderGameScreen() {
-    ctx.fillText("Game Screen", 100, 100);
+    if (bgReady) {
+        ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#FFF";
+        ctx.fillText("Game Screen - Level " + currentLevelData.level, 100, 100);
+    } else {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#FFF';
+        ctx.fillText("Loading Level...", canvas.width / 2 - 50, canvas.height / 2);
+    }
     showHomeButton();
     console.log("The current state is ", currentState);
 }
@@ -116,35 +127,65 @@ function renderMapScreen() {
 
 
 // this function handles the logic and the core of the game, when we are in game state -> requestAnimationFrame other wise we just render the different static state
-function changeState(newState) {
+function changeState(newState, levelNumber = 1) {
     if (currentState === GameState.GAME) {
         stopGameLoop();  // Stop the game loop if leaving the GAME state
+        stopMusic();     // Stop the music when leaving the game state
+        // Reset the background to the default when leaving the game state
+        bgImage.src = '../ressources/images/background.png';
+        bgReady = false; // Set background readiness to false
+        bgImage.onload = () => {
+            bgReady = true;
+            render();  // Render again once the default background is loaded
+        };
     }
 
-    // Hide map buttons if leaving MAP state
     if (currentState === GameState.MAP) {
-        hideMapButtons();
+        hideMapButtons();  // Hide map buttons if leaving MAP state
     }
 
-    currentState = newState;
+    currentState = newState; // Update the current state
 
-    // Setup or show map buttons if entering MAP state
     if (newState === GameState.MAP) {
         if (mapButtons.length === 0) {
-            setupMapButtons();
+            setupMapButtons();  // Setup map buttons if none exist
         } else {
-            showMapButtons();
+            showMapButtons();  // Show map buttons if they are already setup
         }
-    }
-
-    // Start the game loop if entering GAME state
-    if (newState === GameState.GAME) {
-        animationFrameId = requestAnimationFrame(gameLoop);
+    } else if (newState === GameState.GAME) {
+        loadLevel(levelNumber);     // Load level data when entering GAME state
+        animationFrameId = requestAnimationFrame(gameLoop);  // Start the game loop
     } else {
         render();  // Ensure the screen is updated to the new state
     }
 }
 
+
+
+function loadLevel(levelNumber) {
+    fetch(`ressources/JSON/level${levelNumber}.json`)
+        .then(response => response.json())
+        .then(data => {
+            currentLevelData = data;
+            bgImage.src = data.background;  // Update the background image source
+            playMusic(data.music);          // Play the level music
+            bgImage.onload = () => {
+                bgReady = true;
+                render();  // Update the game screen once the background is ready
+            };
+        })
+        .catch(error => console.error('Error loading the level:', error));
+}
+
+function playMusic(musicPath) {
+    currentMusic.src = musicPath;
+    currentMusic.play();
+}
+
+function stopMusic() {
+    currentMusic.pause();  // Met en pause la musique actuelle
+    currentMusic.currentTime = 0;  // Réinitialise le temps à 0
+}
 
 
 /* ----------------------------------------
@@ -169,11 +210,11 @@ new Button('homeButton', 'Home', () => {
     changeState(GameState.HOME);
 });
 
-new Button('scoreButton', 'View Scores', () => {
+new Button('scoreButton', 'Scores', () => {
     changeState(GameState.SCORE);
 });
 
-new Button('mapButton', 'View Maps', () => {
+new Button('mapButton', 'Play', () => {
     changeState(GameState.MAP);
 });
 
@@ -187,13 +228,13 @@ function setupMapButtons() {
 
     // Create new buttons
     mapButtons.push(new Button('level1Button', 'Level 1', () => {
-        changeState(GameState.GAME);        
+        changeState(GameState.GAME, 1);
     }));
     mapButtons.push(new Button('level2Button', 'Level 2', () => {
-        console.log("Level 2 Selected");
+        changeState(GameState.GAME, 2);
     }));
     mapButtons.push(new Button('level3Button', 'Level 3', () => {
-        console.log("Level 3 Selected");
+        changeState(GameState.GAME, 3);
     }));
 
     // Calculate the vertical offset to center buttons
