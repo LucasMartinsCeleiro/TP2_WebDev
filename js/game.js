@@ -1,10 +1,63 @@
+/* ----------------------------------------
+Creation of the Discs
+ ---------------------------------------- */
+
+ class Disc {
+    constructor(x, y, color, radius, number) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.radius = radius;
+        this.outerRadius = radius + 30; 
+        this.number = number;
+        this.active = true;
+        this.clicked = false; // Ajout pour vérifier si le disque a été cliqué avec succès
+    }
+
+    draw(ctx) {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFF';
+        ctx.font = '16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(this.number, this.x, this.y + 5);
+        if (this.outerRadius > this.radius - 7) {   // Ajout de 5 pixels pour la marge
+            ctx.strokeStyle = this.color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.outerRadius, 0, Math.PI * 2);
+            ctx.stroke();
+            this.outerRadius -= 0.3;
+        } else {
+            this.active = false;
+            if (!this.clicked) {
+                lives--; // Diminue une vie si le disque n'a pas été cliqué
+                if (lives <= 0) {
+                    endGame(); // Termine la partie si toutes les vies sont perdues
+                }
+            }
+        }
+    }
+}
+
+let discs = []; // Liste des disques en jeu
+let lastDiscNumber = 0; // Dernier numéro de disque utilisé
+let score = 0; // Score
+let lives = 3; // Start with 3 lives
+
+
+/* ----------------------------------------
+Creation of the Canevas
+ ---------------------------------------- */
+
 // Création du canevas
 const canvas = document.getElementById('gameCanvas');
 var ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 document.body.appendChild(canvas);
-
 
 
 //state method, we create all different stat of our application -> only game state will be in RequestAnimationFr
@@ -89,16 +142,31 @@ function renderHomeScreen() {
 }
 
 function renderGameScreen() {
+    // Vérifie que le fond d'écran est prêt avant de dessiner
     if (bgReady) {
+        // Dessine le fond d'écran
         ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#FFF";
-        ctx.fillText("Game Screen - Level " + currentLevelData.level, 100, 100);
+        
+        // Dessine chaque disque actif
+        discs.forEach(disc => disc.draw(ctx));
+        
+        // Filtre les disques pour enlever ceux qui ne sont plus actifs
+        discs = discs.filter(disc => disc.active);
+        
+        // Appelle la fonction pour dessiner le score
+        renderScore();
+        
+        // Appelle la fonction pour dessiner les vies restantes
+        renderLives();
     } else {
+        // Affiche un écran de chargement si le fond n'est pas prêt
         ctx.fillStyle = '#000';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = '#FFF';
         ctx.fillText("Loading Level...", canvas.width / 2 - 50, canvas.height / 2);
     }
+    
+    // Montre le bouton Home à tout moment
     showHomeButton();
     console.log("The current state is ", currentState);
 }
@@ -123,7 +191,6 @@ function renderMapScreen() {
     }
     console.log("The current state is ", currentState);
 }
-
 
 
 // this function handles the logic and the core of the game, when we are in game state -> requestAnimationFrame other wise we just render the different static state
@@ -154,13 +221,12 @@ function changeState(newState, levelNumber = 1) {
         }
     } else if (newState === GameState.GAME) {
         loadLevel(levelNumber);     // Load level data when entering GAME state
+        launchDiscs();              // Start generating discs
         animationFrameId = requestAnimationFrame(gameLoop);  // Start the game loop
     } else {
         render();  // Ensure the screen is updated to the new state
     }
 }
-
-
 
 function loadLevel(levelNumber) {
     fetch(`ressources/JSON/level${levelNumber}.json`)
@@ -186,6 +252,76 @@ function stopMusic() {
     currentMusic.pause();  // Met en pause la musique actuelle
     currentMusic.currentTime = 0;  // Réinitialise le temps à 0
 }
+
+function renderScore() {
+    ctx.fillStyle = '#FFF'; // Couleur du texte
+    ctx.font = '20px Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText("Score: " + score, 10, 30); // Positionner le score en haut à gauche
+}
+
+function renderLives() {
+    ctx.fillStyle = '#FFF';
+    ctx.font = '20px Arial';
+    ctx.textAlign = 'left';
+    ctx.fillText("Lives: " + lives, canvas.width - 150, 30); // Positionner les vies en haut à droite
+}
+
+function endGame() {
+    console.log("Game Over!");
+    stopGameLoop(); // Arrête la boucle de jeu
+    currentState = GameState.HOME; // Retour au menu principal ou à un écran de fin
+    // Afficher un écran de fin ou une alerte pour informer l'utilisateur
+    alert("Game Over! Your score: " + score);
+}
+
+
+// Function to manage the generation of the disks
+function launchDiscs() {
+    // Exemple de lancement de disques
+    setInterval(() => {
+        if (currentState === GameState.GAME) {
+            let color = `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`;
+            let x = Math.random() * canvas.width;
+            let y = Math.random() * canvas.height;
+            lastDiscNumber++; // Incrémente le numéro de disque
+            discs.push(new Disc(x, y, color, 30, lastDiscNumber)); // Ajoute le numéro du disque
+        }
+    }, 2000); // Lancer un disque chaque seconde
+}
+
+
+// Click Listener
+canvas.addEventListener('click', function(event) {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    discs.forEach(disc => {
+        const distance = Math.sqrt((disc.x - x) ** 2 + (disc.y - y) ** 2);
+        if (distance < disc.radius) {
+            // Calcul des seuils
+            let startOuterRadius = disc.radius + 30; // Départ du rétrécissement
+            let endOuterRadius = disc.radius - 7; // Arrivée du rétrécissement
+            let thresholdPreDisappear = endOuterRadius + 0.25 * (startOuterRadius - endOuterRadius); // 25% avant la fin
+
+            // Vérification des conditions incluant la marge avant et après la disparition
+            if (disc.outerRadius <= startOuterRadius && disc.outerRadius <= thresholdPreDisappear) {
+                console.log("Hit!");
+                disc.clicked = true; // Marque le disque comme cliqué avec succès
+                disc.active = false; // Marque le disque comme inactif
+                score++; // Incrémente le score
+            }
+        }
+    });
+
+    // Mise à jour des disques pour enlever ceux inactifs après le clic
+    discs = discs.filter(disc => disc.active);
+    console.log("Score: ", score);
+    console.log("Lives: ", lives);
+});
+
+
+
 
 
 /* ----------------------------------------
