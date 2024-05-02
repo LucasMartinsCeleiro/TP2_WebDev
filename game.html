@@ -1,16 +1,22 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>Bullseye Game</title>
-        <link rel="stylesheet" href="ressources/style.css">
-	</head>
-	<body>
-		<body>
-			<canvas id="gameCanvas"></canvas>
-			<!-- Other HTML elements -->
-			<script src="js/game.js"></script>
-		</body>
-		
-	</body>
+<head>
+    <meta charset="utf-8">
+    <title>Bullseye Game</title>
+    <link rel="stylesheet" href="ressources/style.css">
+</head>
+<body>
+    <!-- Login Form -->
+    <div id="usernameForm">
+        <form id="usernameInputForm">
+			<div class="title">Login</div>
+            <label for="username">Enter your username</label>
+            <input type="text" id="username" name="username" required>
+            <button type="submit">Start Game</button>
+        </form>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <!-- Other HTML elements -->
+    <script src="js/game.js"></script>
+</body>
 </html>

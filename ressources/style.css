@@ -1,6 +1,7 @@
 body, html {
     margin: 0;
     padding: 0;
+    position: relative;
   }
   /* #playButton, #scoreButton {
     position: absolute;
@@ -18,6 +19,86 @@ body, html {
   }
 
 */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+  z-index: 9998; /* Ensure the overlay is below the username form */
+}
+
+.title {
+  position: relative;
+  margin-top: 3vh;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  color: white;
+  text-align: center;
+  z-index: 9999; /* Ensure the title is on top of other elements */
+}
+#usernameForm {
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  position: fixed;
+  height: 50%;
+  width: 30%;
+  top: 50%;
+  left: 50%;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  border-radius: 10px;
+  z-index: 9999; /* Ensure the form is on top of other elements */
+  color: white;
+  opacity: 0; /* Set initial opacity to 0 */
+  animation: fadeIn 1s forwards; /* Apply fade-in animation */
+}
+
+@keyframes fadeIn {
+  from {
+      opacity: 0; /* Start from opacity 0 */
+  }
+  to {
+      opacity: 1; /* End at opacity 1 */
+  }
+}
+
+#usernameForm label,
+#usernameForm input,
+#usernameForm button {
+  display: block;
+  margin-bottom: 10px;
+  position: relative;
+  text-align: center;
+  margin: 10px auto;
+  
+}
+
+#usernameInputForm button {
+  position: relative;
+  display: block;
+  margin: 0 auto; /* Center horizontally */
+  width: 150px; /* Set width */
+  height: 40px; /* Set height */
+  cursor: pointer;
+  background-color: linear-gradient(45deg, rgb(143, 62, 112), rgb(235, 109, 235));
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: all;
+}
+
+#usernameInputForm button:hover {
+  transform: scale(1.1);
+}
+
+
 
 button {
   width: 100px;
