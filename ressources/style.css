@@ -20,6 +20,31 @@ body, html {
 
 */
 
+#usernameForm {
+  position: fixed;
+  height: 50vh; /* Change height to auto */
+  width: 30vh;
+  top: 50%;
+  left: 50%;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  border-radius: 5vh;
+  z-index: 9999;
+  color: white;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  font-size: 3vh;
+  opacity: 0;
+  animation: fadeIn 1s forwards;
+}
+
+#usernameForm h2 {
+  margin-top: 0;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  font-size: 7vh;
+}
+
 .overlay {
   position: fixed;
   top: 0;
@@ -30,34 +55,24 @@ body, html {
   z-index: 9998; /* Ensure the overlay is below the username form */
 }
 
-.title {
-  position: relative;
-  margin-top: 3vh;
+#usernameInputForm input {
+  width: 80%; /* Make input field width 100% */
+  padding: 10px; /* Add padding */
+  border: 3px solid #ccc; /* Add border */
+  border-radius: 5px; /* Add border radius */
+  font-size: 4vh;
   font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 48px;
-  color: white;
-  text-align: center;
-  z-index: 9999; /* Ensure the title is on top of other elements */
+  transition: border-color 0.3s; /* Add transition for border color */
 }
-#usernameForm {
-  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-  position: fixed;
-  height: 50%;
-  width: 30%;
-  top: 50%;
-  left: 50%;
-  text-align: center;
-  transform: translate(-50%, -50%);
-  background-color: rgba(0, 0, 0, 0.8);
-  padding: 20px;
-  border-radius: 10px;
-  z-index: 9999; /* Ensure the form is on top of other elements */
-  color: white;
-  opacity: 0; /* Set initial opacity to 0 */
-  animation: fadeIn 1s forwards; /* Apply fade-in animation */
+
+#usernameInputForm input:focus {
+  outline: none; 
+  border-color: #7E57C2; 
+}
+
+
+#usernameInputForm {
+  margin-top: 20px; /* Add margin to create space between "login" and form */
 }
 
 @keyframes fadeIn {
@@ -69,8 +84,15 @@ body, html {
   }
 }
 
-#usernameForm label,
-#usernameForm input,
+#usernameInputForm label,
+#usernameInputForm input {
+  display: block;
+  margin-bottom: 10px;
+  position: relative;
+  text-align: center;
+  margin: 10px auto;
+}
+
 #usernameForm button {
   display: block;
   margin-bottom: 10px;
@@ -81,24 +103,26 @@ body, html {
 }
 
 #usernameInputForm button {
-  position: relative;
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   display: block;
-  margin: 0 auto; /* Center horizontally */
-  width: 150px; /* Set width */
-  height: 40px; /* Set height */
+  width: 150px;
+  height: 40px;
   cursor: pointer;
   background-color: linear-gradient(45deg, rgb(143, 62, 112), rgb(235, 109, 235));
   color: white;
   border: none;
   border-radius: 5px;
   transition: all;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  font-size: 4vh;
 }
 
 #usernameInputForm button:hover {
-  transform: scale(1.1);
+  background-color: rgb(66, 66, 66);
 }
-
-
 
 button {
   width: 100px;

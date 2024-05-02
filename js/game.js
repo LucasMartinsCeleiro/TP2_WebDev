@@ -15,7 +15,7 @@ function showUsernameForm() {
 document.getElementById('usernameInputForm').addEventListener('submit', function(event) {
     event.preventDefault(); // Prevent default form submission behavior
     username = document.getElementById('username').value.trim(); // Get the value entered by the user
-    if (username !== '') {
+    if (username = '') {
         startGame(); // Call function to start the game if username is provided
         hideOverlay(); // Hide overlay when the game starts
     } else {
