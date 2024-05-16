@@ -29,7 +29,7 @@ Creation of the Discs
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.outerRadius, 0, Math.PI * 2);
             ctx.stroke();
-            this.outerRadius -= 0.3;
+            this.outerRadius -= 0.5;
         } else {
             this.active = false;
             if (!this.clicked) {
@@ -193,41 +193,43 @@ function renderMapScreen() {
 }
 
 
-// this function handles the logic and the core of the game, when we are in game state -> requestAnimationFrame other wise we just render the different static state
+// Function to change game state
 function changeState(newState, levelNumber = 1) {
     if (currentState === GameState.GAME) {
-        stopGameLoop();  // Stop the game loop if leaving the GAME state
-        stopMusic();     // Stop the music when leaving the game state
-        // Reset the background to the default when leaving the game state
+        stopGameLoop();
+        stopMusic();
         bgImage.src = '../ressources/images/background.png';
-        bgReady = false; // Set background readiness to false
+        bgReady = false;
         bgImage.onload = () => {
             bgReady = true;
-            render();  // Render again once the default background is loaded
+            render();
         };
     }
 
     if (currentState === GameState.MAP) {
-        hideMapButtons();  // Hide map buttons if leaving MAP state
+        hideMapButtons();
     }
 
-    currentState = newState; // Update the current state
+    currentState = newState;
 
     if (newState === GameState.MAP) {
         if (mapButtons.length === 0) {
-            setupMapButtons();  // Setup map buttons if none exist
+            setupMapButtons();
         } else {
-            showMapButtons();  // Show map buttons if they are already setup
+            showMapButtons();
         }
     } else if (newState === GameState.GAME) {
-        loadLevel(levelNumber);     // Load level data when entering GAME state
-        launchDiscs();              // Start generating discs
-        animationFrameId = requestAnimationFrame(gameLoop);  // Start the game loop
+        loadLevel(levelNumber);
+        animationFrameId = requestAnimationFrame(gameLoop);
     } else {
-        render();  // Ensure the screen is updated to the new state
+        render();
     }
 }
 
+var beats = [];
+const appearanceOffset = 1.9; // Define the offset in seconds
+
+// Function to load level data
 function loadLevel(levelNumber) {
     fetch(`ressources/JSON/level${levelNumber}.json`)
         .then(response => response.json())
@@ -235,12 +237,39 @@ function loadLevel(levelNumber) {
             currentLevelData = data;
             bgImage.src = data.background;  // Update the background image source
             playMusic(data.music);          // Play the level music
+            beats = data.beats;             // Store beats
             bgImage.onload = () => {
                 bgReady = true;
                 render();  // Update the game screen once the background is ready
             };
+            scheduleDiscs(); // Schedule discs based on beats
         })
         .catch(error => console.error('Error loading the level:', error));
+}
+
+const margin = 150; // Définir la marge en pixels
+
+// Function to schedule disc creation based on beats
+function scheduleDiscs() {
+    if (beats.length === 0) {
+        console.warn('No beats available for this level.');
+        return;
+    }
+
+    beats.forEach((beat, index) => {
+        // Calculate the time to schedule the disc, adjusted by the offset
+        const scheduleTime = (beat - appearanceOffset) * 1000; // Convert to milliseconds
+
+        setTimeout(() => {
+            if (currentState === GameState.GAME) {
+                let color = `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`;
+                let x = margin + Math.random() * (canvas.width - 2 * margin); // Générer x avec une marge
+                let y = margin + Math.random() * (canvas.height - 2 * margin); // Générer y avec une marge
+                lastDiscNumber++;
+                discs.push(new Disc(x, y, color, 30, lastDiscNumber));
+            }
+        }, scheduleTime);
+    });
 }
 
 function playMusic(musicPath) {
@@ -287,7 +316,7 @@ function launchDiscs() {
             lastDiscNumber++; // Incrémente le numéro de disque
             discs.push(new Disc(x, y, color, 30, lastDiscNumber)); // Ajoute le numéro du disque
         }
-    }, 2000); // Lancer un disque chaque seconde
+    }, 1500); // Lancer un disque chaque seconde
 }
 
 
