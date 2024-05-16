@@ -27,7 +27,6 @@ let loadLevelLock = false;
 let scheduleDiscsLock = false;
 let loadLevelCalled = 0;
 let scheduleDiscsCalled = 0;
-let startTime = 0;
 
 /* ----------------------------------------
 Disc Class
@@ -147,22 +146,14 @@ function changeState(newState, levelNumber = 1) {
             showMapButtons();
         }
     } else if (newState === GameState.GAME) {
-        resetGameData();
         loadLevel(levelNumber);
         startTime = performance.now(); // Reset the start time here
         animationFrameId = requestAnimationFrame(gameLoop);
+    } else if (newState == GameState.HOME) {
+        location.reload()
     } else {
         render();
     }
-}
-
-function resetGameData() {
-    score = 0;
-    lives = 3;
-    lastDiscNumber = 0;
-    discs = [];
-    beats = [];
-    console.log("aaaa Game Data Reset!");
 }
 
 function endGame() {
@@ -218,7 +209,7 @@ function scheduleDiscs() {
 
     console.log("aaaa Beats:", beats);
     console.log("aaaa Appearance Offset:", appearanceOffset);
-    console.log("aaaa Start Time:", startTime);
+    console.log("bbbb Start Time:", startTime);
 
     beats.forEach((beat, index) => {
         const scheduleTime = (beat - appearanceOffset) * 1000;
