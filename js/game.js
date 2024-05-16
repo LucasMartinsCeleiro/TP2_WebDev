@@ -1,14 +1,44 @@
 /* ----------------------------------------
-Creation of the Discs
- ---------------------------------------- */
+Constants and Global Variables
+---------------------------------------- */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext("2d");
+const GameState = {
+    HOME: 'home',
+    GAME: 'game',
+    SCORE: 'score',
+    MAP: 'map',
+    END_OF_GAME: 'end_of_game'
+};
+let discs = [];
+let lastDiscNumber = 0;
+let score = 0;
+let lives = 3;
+let currentState = GameState.HOME;
+let bgReady = false;
+let bgImage = new Image();
+let animationFrameId;
+let currentLevelData = {};
+let currentMusic = new Audio();
+const appearanceOffset = 1.233;
+const margin = 150;
+let mapButtons = [];
+let loadLevelLock = false;
+let scheduleDiscsLock = false;
+let loadLevelCalled = 0;
+let scheduleDiscsCalled = 0;
+let startTime = 0;
 
- class Disc {
+/* ----------------------------------------
+Disc Class
+---------------------------------------- */
+class Disc {
     constructor(x, y, color, radius, number) {
         this.x = x;
         this.y = y;
         this.color = color;
         this.radius = radius;
-        this.outerRadius = radius + 30; 
+        this.outerRadius = radius + 30;
         this.number = number;
         this.active = true;
         this.clicked = false; // Ajout pour vérifier si le disque a été cliqué avec succès
@@ -42,72 +72,36 @@ Creation of the Discs
     }
 }
 
-let discs = []; // Liste des disques en jeu
-let lastDiscNumber = 0; // Dernier numéro de disque utilisé
-let score = 0; // Score
-let lives = 3; // Start with 3 lives
-
-
 /* ----------------------------------------
-Creation of the Canevas
- ---------------------------------------- */
-
-// Création du canevas
-const canvas = document.getElementById('gameCanvas');
-var ctx = canvas.getContext("2d");
+Canvas Setup
+---------------------------------------- */
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 document.body.appendChild(canvas);
 
-
-//state method, we create all different stat of our application -> only game state will be in RequestAnimationFr
-const GameState = {
-    HOME: 'home',
-    GAME: 'game',
-    SCORE: 'score',
-    MAP: 'map'
-};
-
-let currentState = GameState.HOME;
-
-var bgReady = false;
-var bgImage = new Image();
-bgImage.src = '../ressources/images/background.png'; // Replace with the path to your image
-
-bgImage.onload = function () {
-    bgReady = true;
-    gameLoop();
-};
-
-
 /* ----------------------------------------
-Logic and core of the application
- ---------------------------------------- */
-
-var animationFrameId;
-var currentLevelData = {};
-var currentMusic = new Audio();
-
+Game Logic
+---------------------------------------- */
 function gameLoop() {
-    update();
-    render();
-    console.log("gameLoop is called");
-    // Only call the next frame if the current state is GAME
     if (currentState === GameState.GAME) {
+        update();
+        render();
+        console.log("gameLoop is called");
         animationFrameId = requestAnimationFrame(gameLoop);
     }
 }
 
-
-//function to stop the clock
 function stopGameLoop() {
-    cancelAnimationFrame(animationFrameId);
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+        console.log("Game loop stopped");
+    }
 }
 
-
-//This function will call all the other function to change game
 function update() {
-    console.log("hello")
+    console.log("update is called");
+    // Update logic here
 }
 
 function render() {
@@ -125,48 +119,174 @@ function render() {
         case GameState.MAP:
             renderMapScreen();
             break;
+        case GameState.END_OF_GAME:
+            renderEndGameScreen();
+            break;
+    }
+    console.log("render is called, current state: ", currentState);
+}
+
+function changeState(newState, levelNumber = 1) {
+    if (currentState === GameState.GAME) {
+        stopGameLoop();
+        stopMusic();
+        bgReady = false;
+    }
+
+    if (currentState === GameState.MAP) {
+        hideMapButtons();
+    }
+
+    stopGameLoop(); // Ensure the game loop is stopped before changing the state
+    currentState = newState;
+
+    if (newState === GameState.MAP) {
+        if (mapButtons.length === 0) {
+            setupMapButtons();
+        } else {
+            showMapButtons();
+        }
+    } else if (newState === GameState.GAME) {
+        resetGameData();
+        loadLevel(levelNumber);
+        startTime = performance.now(); // Reset the start time here
+        animationFrameId = requestAnimationFrame(gameLoop);
+    } else {
+        render();
     }
 }
 
+function resetGameData() {
+    score = 0;
+    lives = 3;
+    lastDiscNumber = 0;
+    discs = [];
+    beats = [];
+    console.log("aaaa Game Data Reset!");
+}
+
+function endGame() {
+    console.log("aaaa Game Over!");
+    stopGameLoop(); // Stop the game loop when the game ends
+    currentState = GameState.END_OF_GAME;
+    render(); // Render once to ensure the end game screen is displayed
+}
+
+/* ----------------------------------------
+Disc Scheduling
+---------------------------------------- */
+function loadLevel(levelNumber) {
+    if (loadLevelLock) {
+        console.log('aaaa loadLevel already in progress, skipping...');
+        return;
+    }
+    loadLevelLock = true;
+    console.log(`aaaa loadLevel called ${++loadLevelCalled} times`);
+
+    console.log("Loading level: ", levelNumber);
+    fetch(`ressources/JSON/level${levelNumber}.json`)
+        .then(response => response.json())
+        .then(data => {
+            currentLevelData = data;
+            bgImage.src = data.background;
+            playMusic(data.music);
+            beats = data.beats;
+            bgImage.onload = () => {
+                bgReady = true;
+                render();
+            };
+            console.log("aaaa Scheduling discs for level: ", levelNumber);
+            scheduleDiscs();
+        })
+        .catch(error => console.error('Error loading the level:', error))
+        .finally(() => loadLevelLock = false);
+}
+
+function scheduleDiscs() {
+    if (scheduleDiscsLock) {
+        console.log('aaaa scheduleDiscs already in progress, skipping...');
+        return;
+    }
+    scheduleDiscsLock = true;
+    console.log(`aaaa scheduleDiscs called ${++scheduleDiscsCalled} times`);
+
+    if (beats.length === 0) {
+        console.warn('No beats available for this level.');
+        scheduleDiscsLock = false;
+        return;
+    }
+
+    console.log("aaaa Beats:", beats);
+    console.log("aaaa Appearance Offset:", appearanceOffset);
+    console.log("aaaa Start Time:", startTime);
+
+    beats.forEach((beat, index) => {
+        const scheduleTime = (beat - appearanceOffset) * 1000;
+        const targetTime = startTime + scheduleTime;
+        console.log(`aaaa Beat ${index + 1}: scheduleTime = ${scheduleTime}ms, targetTime = ${targetTime}ms`);
+
+        const scheduleDisc = () => {
+            const currentTime = performance.now();
+            const delay = targetTime - currentTime;
+
+            if (delay > 0) {
+                requestAnimationFrame(scheduleDisc);
+            } else if (currentState === GameState.GAME) {
+                let color = `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`;
+                let x = margin + Math.random() * (canvas.width - 2 * margin);
+                let y = margin + Math.random() * (canvas.height - 2 * margin);
+                lastDiscNumber++;
+                discs.push(new Disc(x, y, color, 30, lastDiscNumber));
+                console.log(`aaaa Scheduled disc #${lastDiscNumber} at (${x}, ${y}) at ${currentTime - startTime}ms (targetTime: ${targetTime}ms)`);
+            }
+        };
+
+        scheduleDisc();
+    });
+    scheduleDiscsLock = false;
+}
+
+/* ----------------------------------------
+Music Control
+---------------------------------------- */
+function playMusic(musicPath) {
+    console.log("Playing music: ", musicPath);
+    currentMusic.src = musicPath;
+    currentMusic.play();
+}
+
+function stopMusic() {
+    console.log("Stopping music");
+    currentMusic.pause();
+    currentMusic.currentTime = 0;
+}
+
+/* ----------------------------------------
+Rendering Functions
+---------------------------------------- */
 function renderHomeScreen() {
-    if (bgReady) {
+    bgImage.src = '../ressources/images/background.png';
+    bgImage.onload = function () {
+        bgReady = true;
         ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
         hideHomeButton();
-    } else {
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#FFF';
-        ctx.fillText("Loading...", canvas.width / 2 - 50, canvas.height / 2);
-    }
-    console.log("The current state is ", currentState);
+        console.log("The current state is ", currentState);
+    };
 }
 
 function renderGameScreen() {
-    // Vérifie que le fond d'écran est prêt avant de dessiner
     if (bgReady) {
-        // Dessine le fond d'écran
         ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
-        
-        // Dessine chaque disque actif
         discs.forEach(disc => disc.draw(ctx));
-        
-        // Filtre les disques pour enlever ceux qui ne sont plus actifs
         discs = discs.filter(disc => disc.active);
-        
-        // Appelle la fonction pour dessiner le score
         renderScore();
-        
-        // Appelle la fonction pour dessiner les vies restantes
         renderLives();
     } else {
-        // Affiche un écran de chargement si le fond n'est pas prêt
         ctx.fillStyle = '#000';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = '#FFF';
         ctx.fillText("Loading Level...", canvas.width / 2 - 50, canvas.height / 2);
     }
-    
-    // Montre le bouton Home à tout moment
     showHomeButton();
     console.log("The current state is ", currentState);
 }
@@ -182,7 +302,6 @@ function renderMapScreen() {
         ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
         showMapButtons();
         showHomeButton();
-
     } else {
         ctx.fillStyle = '#000';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -192,180 +311,76 @@ function renderMapScreen() {
     console.log("The current state is ", currentState);
 }
 
-
-// Function to change game state
-function changeState(newState, levelNumber = 1) {
-    if (currentState === GameState.GAME) {
-        stopGameLoop();
-        stopMusic();
-        bgImage.src = '../ressources/images/background.png';
-        bgReady = false;
-        bgImage.onload = () => {
-            bgReady = true;
-            render();
-        };
-    }
-
-    if (currentState === GameState.MAP) {
-        hideMapButtons();
-    }
-
-    currentState = newState;
-
-    if (newState === GameState.MAP) {
-        if (mapButtons.length === 0) {
-            setupMapButtons();
-        } else {
-            showMapButtons();
-        }
-    } else if (newState === GameState.GAME) {
-        loadLevel(levelNumber);
-        animationFrameId = requestAnimationFrame(gameLoop);
-    } else {
-        render();
-    }
-}
-
-var beats = [];
-const appearanceOffset = 1.9; // Define the offset in seconds
-
-// Function to load level data
-function loadLevel(levelNumber) {
-    fetch(`ressources/JSON/level${levelNumber}.json`)
-        .then(response => response.json())
-        .then(data => {
-            currentLevelData = data;
-            bgImage.src = data.background;  // Update the background image source
-            playMusic(data.music);          // Play the level music
-            beats = data.beats;             // Store beats
-            bgImage.onload = () => {
-                bgReady = true;
-                render();  // Update the game screen once the background is ready
-            };
-            scheduleDiscs(); // Schedule discs based on beats
-        })
-        .catch(error => console.error('Error loading the level:', error));
-}
-
-const margin = 150; // Définir la marge en pixels
-
-// Function to schedule disc creation based on beats
-function scheduleDiscs() {
-    if (beats.length === 0) {
-        console.warn('No beats available for this level.');
-        return;
-    }
-
-    beats.forEach((beat, index) => {
-        // Calculate the time to schedule the disc, adjusted by the offset
-        const scheduleTime = (beat - appearanceOffset) * 1000; // Convert to milliseconds
-
-        setTimeout(() => {
-            if (currentState === GameState.GAME) {
-                let color = `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`;
-                let x = margin + Math.random() * (canvas.width - 2 * margin); // Générer x avec une marge
-                let y = margin + Math.random() * (canvas.height - 2 * margin); // Générer y avec une marge
-                lastDiscNumber++;
-                discs.push(new Disc(x, y, color, 30, lastDiscNumber));
-            }
-        }, scheduleTime);
-    });
-}
-
-function playMusic(musicPath) {
-    currentMusic.src = musicPath;
-    currentMusic.play();
-}
-
-function stopMusic() {
-    currentMusic.pause();  // Met en pause la musique actuelle
-    currentMusic.currentTime = 0;  // Réinitialise le temps à 0
+function renderEndGameScreen() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#FFF';
+    ctx.textAlign = 'center';
+    ctx.font = '40px Arial';
+    ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 50);
+    ctx.font = '20px Arial';
+    ctx.fillText("Score: " + score, canvas.width / 2, canvas.height / 2);
+    ctx.fillText(lives > 0 ? "You Win!" : "You Lose!", canvas.width / 2, canvas.height / 2 + 50);
+    console.log("The current state is ", currentState);
+    showHomeButton();
 }
 
 function renderScore() {
-    ctx.fillStyle = '#FFF'; // Couleur du texte
+    ctx.fillStyle = '#FFF';
     ctx.font = '20px Arial';
     ctx.textAlign = 'left';
-    ctx.fillText("Score: " + score, 10, 30); // Positionner le score en haut à gauche
+    ctx.fillText("Score: " + score, 10, 30);
 }
 
 function renderLives() {
     ctx.fillStyle = '#FFF';
     ctx.font = '20px Arial';
     ctx.textAlign = 'left';
-    ctx.fillText("Lives: " + lives, canvas.width - 150, 30); // Positionner les vies en haut à droite
+    ctx.fillText("Lives: " + lives, canvas.width - 150, 30);
 }
 
-function endGame() {
-    console.log("Game Over!");
-    stopGameLoop(); // Arrête la boucle de jeu
-    currentState = GameState.HOME; // Retour au menu principal ou à un écran de fin
-    // Afficher un écran de fin ou une alerte pour informer l'utilisateur
-    alert("Game Over! Your score: " + score);
-}
-
-
-// Function to manage the generation of the disks
-function launchDiscs() {
-    // Exemple de lancement de disques
-    setInterval(() => {
-        if (currentState === GameState.GAME) {
-            let color = `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`;
-            let x = Math.random() * canvas.width;
-            let y = Math.random() * canvas.height;
-            lastDiscNumber++; // Incrémente le numéro de disque
-            discs.push(new Disc(x, y, color, 30, lastDiscNumber)); // Ajoute le numéro du disque
-        }
-    }, 1500); // Lancer un disque chaque seconde
-}
-
-
-// Click Listener
+/* ----------------------------------------
+Event Listeners
+---------------------------------------- */
 canvas.addEventListener('click', function(event) {
+    if (currentState !== GameState.GAME) return;
+
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     discs.forEach(disc => {
         const distance = Math.sqrt((disc.x - x) ** 2 + (disc.y - y) ** 2);
         if (distance < disc.radius) {
-            // Calcul des seuils
-            let startOuterRadius = disc.radius + 30; // Départ du rétrécissement
-            let endOuterRadius = disc.radius - 7; // Arrivée du rétrécissement
-            let thresholdPreDisappear = endOuterRadius + 0.25 * (startOuterRadius - endOuterRadius); // 25% avant la fin
+            let startOuterRadius = disc.radius + 30;
+            let endOuterRadius = disc.radius - 7;
+            let thresholdPreDisappear = endOuterRadius + 0.25 * (startOuterRadius - endOuterRadius);
 
-            // Vérification des conditions incluant la marge avant et après la disparition
             if (disc.outerRadius <= startOuterRadius && disc.outerRadius <= thresholdPreDisappear) {
                 console.log("Hit!");
-                disc.clicked = true; // Marque le disque comme cliqué avec succès
-                disc.active = false; // Marque le disque comme inactif
-                score++; // Incrémente le score
+                disc.clicked = true;
+                disc.active = false;
+                score++;
             }
         }
     });
 
-    // Mise à jour des disques pour enlever ceux inactifs après le clic
     discs = discs.filter(disc => disc.active);
     console.log("Score: ", score);
     console.log("Lives: ", lives);
 });
 
-
-
-
-
 /* ----------------------------------------
-UI 
- ---------------------------------------- */
-
-//Main buttons that will be displayed throughout the game
+UI
+---------------------------------------- */
 class Button {
     constructor(id, text, onClick) {
         this.button = document.createElement('button');
         this.button.id = id;
         this.button.textContent = text;
-        this.button.style.position = 'absolute'; // Position it as needed
-        this.button.style.top = '10px'; // Change as needed
-        this.button.style.left = `${300 + 100 * Object.keys(GameState).indexOf(id.replace('Button', '').toUpperCase())}px`; // Example dynamic positioning
+        this.button.style.position = 'absolute';
+        this.button.style.top = '10px';
+        this.button.style.left = `${300 + 100 * Object.keys(GameState).indexOf(id.replace('Button', '').toUpperCase())}px`;
         this.button.addEventListener('click', onClick);
         document.body.appendChild(this.button);
     }
@@ -383,15 +398,10 @@ new Button('mapButton', 'Play', () => {
     changeState(GameState.MAP);
 });
 
-// Map-specific buttons
-let mapButtons = [];
-
 function setupMapButtons() {
-    // Remove existing map buttons to avoid duplicates
-    mapButtons.forEach(button => button.remove());
+    mapButtons.forEach(button => button.button.remove());
     mapButtons = [];
 
-    // Create new buttons
     mapButtons.push(new Button('level1Button', 'Level 1', () => {
         changeState(GameState.GAME, 1);
     }));
@@ -402,13 +412,11 @@ function setupMapButtons() {
         changeState(GameState.GAME, 3);
     }));
 
-    // Calculate the vertical offset to center buttons
-    const centerTop = window.innerHeight / 2 - (mapButtons.length * 60 / 2); // Assuming button height is less than 60px
+    const centerTop = window.innerHeight / 2 - (mapButtons.length * 60 / 2);
 
-    // Position each button in the center of the page
     mapButtons.forEach((button, index) => {
-        button.button.style.top = `${centerTop + index * 60}px`; // Adjust spacing by 60px per button
-        button.button.style.left = `${window.innerWidth / 2 - button.button.offsetWidth / 2}px`; // Center horizontally
+        button.button.style.top = `${centerTop + index * 60}px`;
+        button.button.style.left = `${window.innerWidth / 2 - button.button.offsetWidth / 2}px`;
     });
 }
 
@@ -417,7 +425,7 @@ function hideMapButtons() {
 }
 
 function showMapButtons() {
-    console.log("hello");
+    console.log("Showing map buttons");
     mapButtons.forEach(button => button.button.style.display = 'block');
 }
 
@@ -426,5 +434,16 @@ function hideHomeButton() {
 }
 
 function showHomeButton() {
-    document.getElementById('homeButton').style.display = 'block'; 
+    document.getElementById('homeButton').style.display = 'block';
 }
+
+/* ----------------------------------------
+Background Image Loading
+---------------------------------------- */
+bgImage.onload = function () {
+    bgReady = true;
+    if (currentState === GameState.HOME) {
+        renderHomeScreen();
+    }
+};
+bgImage.src = '../ressources/images/background.png'; // Replace with the path to your image
