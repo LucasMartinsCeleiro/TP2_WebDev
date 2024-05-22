@@ -11,6 +11,7 @@ const GameState = {
     END_OF_GAME: 'end_of_game'
 };
 let discs = [];
+let musicDuration = 0;
 let lastDiscNumber = 0;
 let score = 0;
 let lives = 3;
@@ -159,6 +160,7 @@ function changeState(newState, levelNumber = 1) {
 function endGame() {
     console.log("aaaa Game Over!");
     stopGameLoop(); // Stop the game loop when the game ends
+    stopMusic(); // Stop the music when the game ends
     currentState = GameState.END_OF_GAME;
     render(); // Render once to ensure the end game screen is displayed
 }
@@ -244,6 +246,16 @@ function playMusic(musicPath) {
     console.log("Playing music: ", musicPath);
     currentMusic.src = musicPath;
     currentMusic.play();
+
+    currentMusic.addEventListener('loadedmetadata', () => {
+        musicDuration = currentMusic.duration;
+    });
+
+    currentMusic.addEventListener('timeupdate', () => {
+        if (currentState === GameState.GAME) {
+            render(); // Update the render function to ensure the progress bar is updated
+        }
+    });
 }
 
 function stopMusic() {
@@ -270,7 +282,7 @@ function renderGameScreen() {
         ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
         discs.forEach(disc => disc.draw(ctx));
         discs = discs.filter(disc => disc.active);
-        renderScore();
+        renderProgressBar();
         renderLives();
     } else {
         ctx.fillStyle = '#000';
@@ -306,22 +318,56 @@ function renderEndGameScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Use the last progress percentage stored
+    let progress = lastProgress;
+
+    // Draw the "Game Over" text
     ctx.fillStyle = '#FFF';
     ctx.textAlign = 'center';
     ctx.font = '40px Arial';
     ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 50);
+
+    // Draw the progress percentage text
     ctx.font = '20px Arial';
-    ctx.fillText("Score: " + score, canvas.width / 2, canvas.height / 2);
+    ctx.fillText("Progress: " + progress.toFixed(2) + "%", canvas.width / 2, canvas.height / 2);
+
+    // Draw the win/lose message
     ctx.fillText(lives > 0 ? "You Win!" : "You Lose!", canvas.width / 2, canvas.height / 2 + 50);
+
     console.log("The current state is ", currentState);
     showHomeButton();
 }
 
-function renderScore() {
-    ctx.fillStyle = '#FFF';
-    ctx.font = '20px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText("Score: " + score, 10, 30);
+function renderProgressBar() {
+    // Calculate the percentage of progress based on the current time of the music
+    let progress = (currentMusic.currentTime / musicDuration) * 100;
+    lastProgress = progress;  // Update the last progress percentage
+
+    // Set the shadow properties for the bar and border
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetX = 5;
+    ctx.shadowOffsetY = 5;
+
+    // Draw the progress bar background
+    ctx.fillStyle = '#555';
+    ctx.fillRect(10, 10, 300, 30);
+
+    // Draw the progress bar foreground
+    ctx.fillStyle = '#0f0';
+    ctx.fillRect(10, 10, 300 * (progress / 100), 30);
+
+    // Reset the shadow properties for the border
+    ctx.shadowColor = 'rgba(0, 0, 0, 0)';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+
+    // Draw the border
+    ctx.strokeStyle = '#FFF';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(10, 10, 300, 30);
 }
 
 function renderLives() {
