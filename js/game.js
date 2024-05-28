@@ -4,6 +4,7 @@ Constants and Global Variables
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext("2d");
 const GameState = {
+    LOGIN: 'login',
     HOME: 'home',
     GAME: 'game',
     SCORE: 'score',
@@ -15,7 +16,7 @@ let musicDuration = 0;
 let lastDiscNumber = 0;
 let score = 0;
 let lives = 3;
-let currentState = GameState.HOME;
+let currentState = GameState.LOGIN;
 let bgReady = false;
 let bgImage = new Image();
 let animationFrameId;
@@ -28,6 +29,7 @@ let loadLevelLock = false;
 let scheduleDiscsLock = false;
 let loadLevelCalled = 0;
 let scheduleDiscsCalled = 0;
+let username = ''; // Add this line to store the username
 
 /* ----------------------------------------
 Disc Class
@@ -107,6 +109,9 @@ function update() {
 function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     switch (currentState) {
+        case GameState.LOGIN:
+            renderLoginScreen();
+            break;
         case GameState.HOME:
             renderHomeScreen();
             break;
@@ -151,7 +156,7 @@ function changeState(newState, levelNumber = 1) {
         startTime = performance.now(); // Reset the start time here
         animationFrameId = requestAnimationFrame(gameLoop);
     } else if (newState == GameState.HOME) {
-        location.reload()
+        render(); // Ensure the home screen is rendered
     } else {
         render();
     }
@@ -267,6 +272,15 @@ function stopMusic() {
 /* ----------------------------------------
 Rendering Functions
 ---------------------------------------- */
+function renderLoginScreen() {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#FFF';
+    ctx.font = '30px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('Enter your username', canvas.width / 2, canvas.height / 2 - 40);
+}
+
 function renderHomeScreen() {
     bgImage.src = '../ressources/images/background.png';
     bgImage.onload = function () {
@@ -419,20 +433,27 @@ class Button {
         this.button.style.top = '10px';
         this.button.style.left = `${300 + 100 * Object.keys(GameState).indexOf(id.replace('Button', '').toUpperCase())}px`;
         this.button.addEventListener('click', onClick);
+        this.button.style.display = currentState === GameState.LOGIN ? 'none' : 'block'; // Hide buttons during login
         document.body.appendChild(this.button);
     }
 }
 
 new Button('homeButton', 'Home', () => {
-    changeState(GameState.HOME);
+    if (currentState !== GameState.LOGIN) {
+        changeState(GameState.HOME);
+    }
 });
 
 new Button('scoreButton', 'Scores', () => {
-    changeState(GameState.SCORE);
+    if (currentState !== GameState.LOGIN) {
+        changeState(GameState.SCORE);
+    }
 });
 
 new Button('mapButton', 'Play', () => {
-    changeState(GameState.MAP);
+    if (currentState !== GameState.LOGIN) {
+        changeState(GameState.MAP);
+    }
 });
 
 function setupMapButtons() {
@@ -474,13 +495,23 @@ function showHomeButton() {
     document.getElementById('homeButton').style.display = 'block';
 }
 
+document.getElementById('usernameInputForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    username = document.getElementById('username').value;
+    document.getElementById('usernameForm').style.display = 'none';
+    document.getElementById('gameCanvas').style.display = 'block';
+    // Show all buttons after login
+    document.querySelectorAll('button').forEach(button => button.style.display = 'block');
+    changeState(GameState.HOME);
+});
+
 /* ----------------------------------------
 Background Image Loading
 ---------------------------------------- */
 bgImage.onload = function () {
     bgReady = true;
-    if (currentState === GameState.HOME) {
-        renderHomeScreen();
+    if (currentState === GameState.LOGIN) {
+        renderLoginScreen();
     }
 };
 bgImage.src = '../ressources/images/background.png'; // Replace with the path to your image
