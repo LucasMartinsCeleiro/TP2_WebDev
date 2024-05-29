@@ -1,22 +1,26 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Bullseye Game</title>
-    <link rel="stylesheet" href="ressources/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game</title>
+    <style>
+        canvas {
+            display: block;
+        }
+        button {
+            position: absolute;
+            top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <div id="loginContainer">
-        <form id="loginForm">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <button type="submit">Login</button>
-        </form>
-    </div>
-
-    <canvas id="gameCanvas" style="display: none;"></canvas>
-
-    <script src="js/login.js"></script>
-    <script src="js/game.js" defer></script>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        if (!localStorage.getItem('authenticated')) {
+            window.location.href = 'login.html';
+        }
+    </script>
+    <script src="js/game.js"></script>
 </body>
 </html>
