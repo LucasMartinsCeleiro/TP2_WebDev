@@ -151,9 +151,18 @@ function changeState(newState, levelNumber = 1) {
         startTime = performance.now(); // Reset the start time here
         animationFrameId = requestAnimationFrame(gameLoop);
     } else if (newState == GameState.HOME) {
-        location.reload()
+        location.reload();
     } else {
         render();
+    }
+
+    // Show or hide buttons based on the current state
+    if (newState === GameState.HOME) {
+        showPlayButton();
+        showScoreButton();
+    } else {
+        hidePlayButton();
+        hideScoreButton();
     }
 }
 
@@ -472,6 +481,22 @@ function hideHomeButton() {
 
 function showHomeButton() {
     document.getElementById('homeButton').style.display = 'block';
+}
+
+function hidePlayButton() {
+    document.getElementById('mapButton').style.display = 'none';
+}
+
+function showPlayButton() {
+    document.getElementById('mapButton').style.display = 'block';
+}
+
+function hideScoreButton() {
+    document.getElementById('scoreButton').style.display = 'none';
+}
+
+function showScoreButton() {
+    document.getElementById('scoreButton').style.display = 'block';
 }
 
 /* ----------------------------------------

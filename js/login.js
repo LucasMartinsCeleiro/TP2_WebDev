@@ -1,51 +1,48 @@
-/* ----------------------------------------
-Login Form
- ---------------------------------------- */
+// js/login.js
 
-// Variable to store username
-let username = '';
+document.addEventListener("DOMContentLoaded", function() {
+    const loginForm = document.getElementById("loginForm");
 
-// Function to show the username form
-function showUsernameForm() {
-    document.getElementById('usernameForm').style.display = 'block';
-    showOverlay(); // Show overlay to prevent interaction with elements behind the form
-}
+    loginForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+        
+        const username = document.getElementById("username").value;
 
-// Event listener for form submission
-document.getElementById('usernameInputForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevent default form submission behavior
-    username = document.getElementById('username').value.trim(); // Get the value entered by the user
-    if (username != '') {
-        startGame(); // Call function to start the game if username is provided
-        hideOverlay(); // Hide overlay when the game starts
+        if (username) {
+            // Stocker le nom d'utilisateur dans un cookie de session
+            document.cookie = `username=${username}; path=/;`;
+
+            // Masquer le formulaire de login et afficher le jeu
+            document.getElementById("loginContainer").style.display = "none";
+            document.getElementById("gameCanvas").style.display = "block";
+
+            // Charger le script du jeu
+            loadGameScript();
+        }
+    });
+
+    // Vérifier si le cookie de session existe déjà
+    const username = getCookie("username");
+    if (username) {
+        document.getElementById("loginContainer").style.display = "none";
+        document.getElementById("gameCanvas").style.display = "block";
+        loadGameScript();
     } else {
-        alert('Please enter a username.'); // Alert user if username is empty
+        document.getElementById("loginContainer").style.display = "block";
+        document.getElementById("gameCanvas").style.display = "none";
     }
 });
 
-// Function to start the game
-function startGame() {
-    document.getElementById('usernameForm').style.display = 'none'; // Hide the username input form
-    // Call any initialization functions or set up the game environment here
-    // For example, you may want to call changeState(GameState.HOME) to display the home screen
-    changeState(GameState.HOME);
-    console.log(username); // /!\ Test to check if the username is stored. Delete for production. /!\
+// Fonction pour obtenir un cookie par son nom
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-// Overlay functions
-function showOverlay() {
-    const overlay = document.createElement('div');
-    overlay.classList.add('overlay');
-    document.body.appendChild(overlay);
+// Fonction pour charger le script du jeu
+function loadGameScript() {
+    const script = document.createElement('script');
+    script.src = 'js/game.js';
+    document.body.appendChild(script);
 }
-
-function hideOverlay() {
-    const overlay = document.querySelector('.overlay');
-    if (overlay) {
-        overlay.remove();
-    }
-}
-
-// Call showUsernameForm() when the page loads to prompt the user for a username before accessing the game
-showUsernameForm();
-console.log(username); // /!\ Test to check if the username is stored. Delete for production. /!\
