@@ -163,6 +163,7 @@ function changeState(newState, levelNumber = 1) {
     } else {
         hidePlayButton();
         hideScoreButton();
+        showHomeButton(); // Ensure the home button is shown on all other states
     }
 }
 
