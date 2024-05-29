@@ -420,51 +420,47 @@ canvas.addEventListener('click', function(event) {
 /* ----------------------------------------
 UI
 ---------------------------------------- */
-class Button {
-    constructor(id, text, onClick) {
+class CenteredButton {
+    constructor(id, text, onClick, topOffset = 10) {
         this.button = document.createElement('button');
         this.button.id = id;
         this.button.textContent = text;
         this.button.style.position = 'absolute';
-        this.button.style.top = '10px';
-        this.button.style.left = `${300 + 100 * Object.keys(GameState).indexOf(id.replace('Button', '').toUpperCase())}px`;
+        this.button.style.top = `${topOffset}px`;
+        this.button.style.left = '50%';
+        this.button.style.transform = 'translateX(-50%)';
         this.button.addEventListener('click', onClick);
         document.body.appendChild(this.button);
     }
 }
 
-new Button('homeButton', 'Home', () => {
+new CenteredButton('homeButton', 'Home', () => {
     changeState(GameState.HOME);
-});
+}, 10);
 
-new Button('scoreButton', 'Scores', () => {
+new CenteredButton('scoreButton', 'Scores', () => {
     changeState(GameState.SCORE);
-});
+}, 50);
 
-new Button('mapButton', 'Play', () => {
+new CenteredButton('mapButton', 'Play', () => {
     changeState(GameState.MAP);
-});
+}, 90);
 
 function setupMapButtons() {
     mapButtons.forEach(button => button.button.remove());
     mapButtons = [];
 
-    mapButtons.push(new Button('level1Button', 'Level 1', () => {
+    mapButtons.push(new CenteredButton('level1Button', 'Level 1', () => {
         changeState(GameState.GAME, 1);
-    }));
-    mapButtons.push(new Button('level2Button', 'Level 2', () => {
+    }, window.innerHeight / 2 - 60));
+
+    mapButtons.push(new CenteredButton('level2Button', 'Level 2', () => {
         changeState(GameState.GAME, 2);
-    }));
-    mapButtons.push(new Button('level3Button', 'Level 3', () => {
+    }, window.innerHeight / 2));
+
+    mapButtons.push(new CenteredButton('level3Button', 'Level 3', () => {
         changeState(GameState.GAME, 3);
-    }));
-
-    const centerTop = window.innerHeight / 2 - (mapButtons.length * 60 / 2);
-
-    mapButtons.forEach((button, index) => {
-        button.button.style.top = `${centerTop + index * 60}px`;
-        button.button.style.left = `${window.innerWidth / 2 - button.button.offsetWidth / 2}px`;
-    });
+    }, window.innerHeight / 2 + 60));
 }
 
 function hideMapButtons() {
