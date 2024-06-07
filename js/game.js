@@ -26,10 +26,9 @@ const margin = 150;
 let mapButtons = [];
 let loadLevelLock = false;
 let scheduleDiscsLock = false;
-let loadLevelCalled = 0;
-let scheduleDiscsCalled = 0;
 let startTime;
 let lastProgress = 0; // Add this to track progress
+let scores = []; // Add a variable to store the scores
 
 /* ----------------------------------------
 User Information from Cookies
@@ -208,7 +207,7 @@ function sendScore() {
 
     console.log('Sending score data:', scoreData); // Debugging
 
-    fetch('ressources/score/save_score.php', { // Updated URL to match the PHP server path
+    fetch('ressources/score/save_score.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -217,20 +216,14 @@ function sendScore() {
     })
     .then(response => {
         console.log('Response status:', response.status); // Debugging
-        return response.text(); // Change to text() to inspect the raw response
+        return response.json();
     })
-    .then(text => {
-        console.log('Response text:', text); // Debugging
-        try {
-            const data = JSON.parse(text);
-            console.log('Parsed response data:', data); // Debugging
-            if (data.status === 'success') {
-                console.log('Score saved successfully');
-            } else {
-                console.error('Error saving score:', data.message);
-            }
-        } catch (error) {
-            console.error('Error parsing JSON:', error, 'Response text:', text); // Improved debugging
+    .then(data => {
+        console.log('Response data:', data); // Debugging
+        if (data.status === 'success') {
+            console.log('Score saved successfully');
+        } else {
+            console.error('Error saving score:', data.message);
         }
     })
     .catch(error => {
@@ -369,6 +362,7 @@ function renderGameScreen() {
 
 function renderScoreScreen() {
     ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+    fetchScores(); // Fetch the scores and render them
     showHomeButton();
     console.log("The current state is ", currentState);
 }
@@ -479,6 +473,44 @@ canvas.addEventListener('click', function(event) {
     console.log("Score: ", score);
     console.log("Lives: ", lives);
 });
+
+/* ----------------------------------------
+Fetch Scores from JSON File
+---------------------------------------- */
+function fetchScores() {
+    fetch('ressources/JSON/Score.json')
+        .then(response => response.json())
+        .then(data => {
+            scores = data;
+            renderScores();
+        })
+        .catch(error => console.error('Error loading scores:', error));
+}
+
+/* ----------------------------------------
+Render Scores on the Screen
+---------------------------------------- */
+function renderScores() {
+    const startY = 50;
+    const lineHeight = 30;
+    const padding = 50; // Adjust as needed
+    const columnWidth = 150; // Adjust as needed
+
+    ctx.fillStyle = '#FFF';
+    ctx.font = '20px Arial';
+    ctx.textAlign = 'left'; // Changed to left alignment
+
+    scores.forEach((score, index) => {
+        const y = startY + index * lineHeight;
+        const usernameX = padding;
+        const locationX = usernameX + columnWidth;
+        const levelX = locationX + columnWidth;
+        const progressX = levelX + columnWidth;
+        const timestampX = progressX + columnWidth;
+
+        ctx.fillText(`${score.username.padEnd(20)}\t${score.location.padEnd(20)}\t${score.level.toString().padEnd(10)}\t${score.progress.toFixed(2).toString().padEnd(10)}%\t${score.timestamp}`, usernameX, y);
+    });
+}
 
 /* ----------------------------------------
 UI
