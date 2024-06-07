@@ -28,6 +28,8 @@ let loadLevelLock = false;
 let scheduleDiscsLock = false;
 let loadLevelCalled = 0;
 let scheduleDiscsCalled = 0;
+let startTime;
+let lastProgress = 0; // Add this to track progress
 
 /* ----------------------------------------
 User Information from Cookies
@@ -185,11 +187,55 @@ function changeState(newState, levelNumber = 1) {
 }
 
 function endGame() {
-    console.log("aaaa Game Over!");
+    console.log("Game Over!");
     stopGameLoop(); // Stop the game loop when the game ends
     stopMusic(); // Stop the music when the game ends
     currentState = GameState.END_OF_GAME;
     render(); // Render once to ensure the end game screen is displayed
+    sendScore(); // Send the score to the server at the end of the game
+}
+
+/* ----------------------------------------
+Send Score to Server
+---------------------------------------- */
+function sendScore() {
+    const scoreData = {
+        username: username,
+        location: geolocation,
+        level: currentLevelData.level, // Assuming currentLevelData has the level number
+        progress: lastProgress // The percentage of completion
+    };
+
+    console.log('Sending score data:', scoreData); // Debugging
+
+    fetch('ressources/score/save_score.php', { // Updated URL to match the PHP server path
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(scoreData)
+    })
+    .then(response => {
+        console.log('Response status:', response.status); // Debugging
+        return response.text(); // Change to text() to inspect the raw response
+    })
+    .then(text => {
+        console.log('Response text:', text); // Debugging
+        try {
+            const data = JSON.parse(text);
+            console.log('Parsed response data:', data); // Debugging
+            if (data.status === 'success') {
+                console.log('Score saved successfully');
+            } else {
+                console.error('Error saving score:', data.message);
+            }
+        } catch (error) {
+            console.error('Error parsing JSON:', error, 'Response text:', text); // Improved debugging
+        }
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+    });
 }
 
 /* ----------------------------------------
@@ -197,11 +243,11 @@ Disc Scheduling
 ---------------------------------------- */
 function loadLevel(levelNumber) {
     if (loadLevelLock) {
-        console.log('aaaa loadLevel already in progress, skipping...');
+        console.log('loadLevel already in progress, skipping...');
         return;
     }
     loadLevelLock = true;
-    console.log(`aaaa loadLevel called ${++loadLevelCalled} times`);
+    console.log(`loadLevel called ${++loadLevelCalled} times`);
 
     console.log("Loading level: ", levelNumber);
     fetch(`ressources/JSON/level${levelNumber}.json`)
@@ -215,7 +261,7 @@ function loadLevel(levelNumber) {
                 bgReady = true;
                 render();
             };
-            console.log("aaaa Scheduling discs for level: ", levelNumber);
+            console.log("Scheduling discs for level: ", levelNumber);
             scheduleDiscs();
         })
         .catch(error => console.error('Error loading the level:', error))
@@ -224,11 +270,11 @@ function loadLevel(levelNumber) {
 
 function scheduleDiscs() {
     if (scheduleDiscsLock) {
-        console.log('aaaa scheduleDiscs already in progress, skipping...');
+        console.log('scheduleDiscs already in progress, skipping...');
         return;
     }
     scheduleDiscsLock = true;
-    console.log(`aaaa scheduleDiscs called ${++scheduleDiscsCalled} times`);
+    console.log(`scheduleDiscs called ${++scheduleDiscsCalled} times`);
 
     if (beats.length === 0) {
         console.warn('No beats available for this level.');
@@ -236,14 +282,14 @@ function scheduleDiscs() {
         return;
     }
 
-    console.log("aaaa Beats:", beats);
-    console.log("aaaa Appearance Offset:", appearanceOffset);
-    console.log("bbbb Start Time:", startTime);
+    console.log("Beats:", beats);
+    console.log("Appearance Offset:", appearanceOffset);
+    console.log("Start Time:", startTime);
 
     beats.forEach((beat, index) => {
         const scheduleTime = (beat - appearanceOffset) * 1000;
         const targetTime = startTime + scheduleTime;
-        console.log(`aaaa Beat ${index + 1}: scheduleTime = ${scheduleTime}ms, targetTime = ${targetTime}ms`);
+        console.log(`Beat ${index + 1}: scheduleTime = ${scheduleTime}ms, targetTime = ${targetTime}ms`);
 
         const scheduleDisc = () => {
             const currentTime = performance.now();
@@ -257,7 +303,7 @@ function scheduleDiscs() {
                 let y = margin + Math.random() * (canvas.height - 2 * margin);
                 lastDiscNumber++;
                 discs.push(new Disc(x, y, color, 30, lastDiscNumber));
-                console.log(`aaaa Scheduled disc #${lastDiscNumber} at (${x}, ${y}) at ${currentTime - startTime}ms (targetTime: ${targetTime}ms)`);
+                console.log(`Scheduled disc #${lastDiscNumber} at (${x}, ${y}) at ${currentTime - startTime}ms (targetTime: ${targetTime}ms)`);
             }
         };
 

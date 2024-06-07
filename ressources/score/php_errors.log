@@ -1,0 +1,37 @@
+[07-Jun-2024 13:23:59 Europe/Berlin] Received data: Array
+(
+    [username] => Yohann
+    [location] => Switzerland
+    [level] => 1
+    [progress] => 4.9967103815664
+)
+
+[07-Jun-2024 13:23:59 Europe/Berlin] Score saved successfully
+[07-Jun-2024 13:27:55 Europe/Berlin] PHP Warning:  mkdir(): File exists in C:\Users\yoch2\Desktop\HES-SO\4ème semestre\Web\TP2_WebDev\ressources\score\save_score.php on line 17
+[07-Jun-2024 13:27:55 Europe/Berlin] Directory created: Score.json
+[07-Jun-2024 13:27:55 Europe/Berlin] Received data: Array
+(
+    [username] => Yohann
+    [location] => Switzerland
+    [level] => 1
+    [progress] => 4.9274537126551
+)
+
+[07-Jun-2024 13:27:55 Europe/Berlin] PHP Warning:  Undefined variable $filePath in C:\Users\yoch2\Desktop\HES-SO\4ème semestre\Web\TP2_WebDev\ressources\score\save_score.php on line 26
+[07-Jun-2024 13:27:55 Europe/Berlin] PHP Deprecated:  file_exists(): Passing null to parameter #1 ($filename) of type string is deprecated in C:\Users\yoch2\Desktop\HES-SO\4ème semestre\Web\TP2_WebDev\ressources\score\save_score.php on line 26
+[07-Jun-2024 13:27:55 Europe/Berlin] PHP Warning:  Undefined variable $filePath in C:\Users\yoch2\Desktop\HES-SO\4ème semestre\Web\TP2_WebDev\ressources\score\save_score.php on line 27
+[07-Jun-2024 13:27:55 Europe/Berlin] PHP Deprecated:  file_put_contents(): Passing null to parameter #1 ($filename) of type string is deprecated in C:\Users\yoch2\Desktop\HES-SO\4ème semestre\Web\TP2_WebDev\ressources\score\save_score.php on line 27
+[07-Jun-2024 13:27:55 Europe/Berlin] PHP Fatal error:  Uncaught ValueError: Path cannot be empty in C:\Users\yoch2\Desktop\HES-SO\4ème semestre\Web\TP2_WebDev\ressources\score\save_score.php:27
+Stack trace:
+#0 C:\Users\yoch2\Desktop\HES-SO\4ème semestre\Web\TP2_WebDev\ressources\score\save_score.php(27): file_put_contents('', '[]')
+#1 {main}
+  thrown in C:\Users\yoch2\Desktop\HES-SO\4ème semestre\Web\TP2_WebDev\ressources\score\save_score.php on line 27
+[07-Jun-2024 13:29:27 Europe/Berlin] Received data: Array
+(
+    [username] => Yohann
+    [location] => Switzerland
+    [level] => 1
+    [progress] => 5.0092114649936
+)
+
+[07-Jun-2024 13:29:27 Europe/Berlin] Score saved successfully
