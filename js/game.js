@@ -30,6 +30,23 @@ let loadLevelCalled = 0;
 let scheduleDiscsCalled = 0;
 
 /* ----------------------------------------
+User Information from Cookies
+---------------------------------------- */
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+const username = getCookie('username');
+const avatar = getCookie('avatar');
+const geolocation = getCookie('geolocation');
+
+console.log(`Username: ${username}`);
+console.log(`Avatar: ${avatar}`);
+console.log(`Geolocation: ${geolocation}`);
+
+/* ----------------------------------------
 Disc Class
 ---------------------------------------- */
 class Disc {

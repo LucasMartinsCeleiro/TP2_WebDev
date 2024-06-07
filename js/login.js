@@ -1,3 +1,13 @@
+function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
+
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');
 
@@ -7,70 +17,21 @@ document.addEventListener('DOMContentLoaded', (event) => {
     document.getElementById('loginForm').onsubmit = function(e) {
         e.preventDefault();
         console.log('Form submitted');
-        
+
         const username = document.getElementById('username').value;
         const avatar = document.getElementById('avatar').src;
         const geolocation = document.getElementById('geolocation').textContent;
 
         if (username && avatar && geolocation !== "Requesting location...") {
-            localStorage.setItem('authenticated', 'true');
-            localStorage.setItem('username', username);
-            localStorage.setItem('avatar', avatar);
-            localStorage.setItem('geolocation', geolocation);
+            setCookie('authenticated', 'true', 1); // 1 day expiration
+            setCookie('username', username, 1); // 1 day expiration
+            setCookie('avatar', avatar, 1); // 1 day expiration
+            setCookie('geolocation', geolocation, 1); // 1 day expiration
             window.location.href = 'game.html';
         } else {
             alert("Please enter a username, upload a profile picture, and allow geolocation.");
         }
     };
-
-    // Drag and drop functionality
-    let dropArea = document.getElementById('drop-area');
-
-    dropArea.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        dropArea.classList.add('highlight');
-    }, false);
-
-    dropArea.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        dropArea.classList.remove('highlight');
-    }, false);
-
-    dropArea.addEventListener('drop', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        dropArea.classList.remove('highlight');
-
-        let files = e.dataTransfer.files;
-        handleFiles(files);
-    }, false);
-
-    dropArea.addEventListener('click', function() {
-        document.getElementById('fileElem').click();
-    });
-
-    document.getElementById('fileElem').addEventListener('change', function() {
-        let files = this.files;
-        handleFiles(files);
-    });
-
-    function handleFiles(files) {
-        if (files.length) {
-            let file = files[0];
-            let reader = new FileReader();
-
-            reader.onload = function(e) {
-                let img = document.getElementById('avatar');
-                img.src = e.target.result;
-                img.style.display = 'block';
-                document.querySelector('#drop-area p').style.display = 'none';
-            }
-
-            reader.readAsDataURL(file);
-        }
-    }
 
     function requestGeolocation() {
         console.log('Requesting geolocation...');
@@ -189,5 +150,54 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
 
         return "Country not found";
+    }
+
+    // Drag and drop functionality
+    let dropArea = document.getElementById('drop-area');
+
+    dropArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropArea.classList.add('highlight');
+    }, false);
+
+    dropArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropArea.classList.remove('highlight');
+    }, false);
+
+    dropArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropArea.classList.remove('highlight');
+
+        let files = e.dataTransfer.files;
+        handleFiles(files);
+    }, false);
+
+    dropArea.addEventListener('click', function() {
+        document.getElementById('fileElem').click();
+    });
+
+    document.getElementById('fileElem').addEventListener('change', function() {
+        let files = this.files;
+        handleFiles(files);
+    });
+
+    function handleFiles(files) {
+        if (files.length) {
+            let file = files[0];
+            let reader = new FileReader();
+
+            reader.onload = function(e) {
+                let img = document.getElementById('avatar');
+                img.src = e.target.result;
+                img.style.display = 'block';
+                document.querySelector('#drop-area p').style.display = 'none';
+            }
+
+            reader.readAsDataURL(file);
+        }
     }
 });
