@@ -62,6 +62,26 @@ style.textContent = `
     #filters input::placeholder {
         color: #CCC;
     }
+
+    button {
+        padding: 10px 20px;
+        margin: 5px;
+        background-color: #000;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #333;
+    }
+
+    button:active {
+        background-color: #666;
+    }
 `;
 document.head.appendChild(style);
 let discs = [];
@@ -678,11 +698,11 @@ new CenteredButton('homeButton', 'Home', () => {
 
 new CenteredButton('scoreButton', 'Scores', () => {
     changeState(GameState.SCORE);
-}, 50);
+}, window.innerHeight / 2 - 30); // Adjusted to center on screen
 
 new CenteredButton('mapButton', 'Play', () => {
     changeState(GameState.MAP);
-}, 90);
+}, window.innerHeight / 2 + 30); // Adjusted to center on screen
 
 function setupMapButtons() {
     mapButtons.forEach(button => button.button.remove());
