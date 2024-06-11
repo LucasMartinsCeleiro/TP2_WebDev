@@ -53,6 +53,15 @@ style.textContent = `
         background-color: rgba(255, 255, 255, 0.1);
         color: #FFF;
     }
+
+    #filters select option {
+        background-color: #000;
+        color: #FFF;
+    }
+
+    #filters input::placeholder {
+        color: #CCC;
+    }
 `;
 document.head.appendChild(style);
 let discs = [];
@@ -545,7 +554,14 @@ function renderScores(filteredScores = scores) {
         const row = document.createElement('tr');
         ['username', 'location', 'level', 'progress', 'timestamp'].forEach(key => {
             const td = document.createElement('td');
-            td.textContent = score[key];
+            if (key === 'progress') {
+                td.textContent = `${score[key].toFixed(2)}%`; // Arrondir à 2 décimales et ajouter %
+            } else if (key === 'timestamp') {
+                const date = new Date(score[key]);
+                td.textContent = date.toLocaleString(); // Formater la date
+            } else {
+                td.textContent = score[key];
+            }
             row.appendChild(td);
         });
         tbody.appendChild(row);
