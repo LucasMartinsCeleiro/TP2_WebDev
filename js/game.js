@@ -10,6 +10,51 @@ const GameState = {
     MAP: 'map',
     END_OF_GAME: 'end_of_game'
 };
+const style = document.createElement('style');
+style.textContent = `
+    #scoreContainer {
+        position: absolute;
+        top: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #FFF;
+        padding: 20px;
+        border-radius: 10px;
+        max-height: 70vh;
+        overflow-y: scroll;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 10px;
+        border-bottom: 1px solid #FFF;
+    }
+
+    th {
+        cursor: pointer;
+    }
+
+    #filters {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    #filters input, #filters select {
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #FFF;
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #FFF;
+    }
+`;
+document.head.appendChild(style);
 let discs = [];
 let musicDuration = 0;
 let lastDiscNumber = 0;
@@ -484,7 +529,7 @@ function fetchScores() {
         .then(response => response.json())
         .then(data => {
             scores = data;
-            renderScores();
+            displayScores();
         })
         .catch(error => console.error('Error loading scores:', error));
 }
@@ -492,18 +537,106 @@ function fetchScores() {
 /* ----------------------------------------
 Render Scores on the Screen
 ---------------------------------------- */
-function renderScores() {
-    const startY = 100;
-    const lineHeight = 30;
+function renderScores(filteredScores = scores) {
+    const tbody = document.getElementById('scoreTableBody');
+    tbody.innerHTML = ''; // Clear previous rows
 
-    ctx.fillStyle = '#FFF';
-    ctx.font = '20px Arial';
-    ctx.textAlign = 'left';
-
-    scores.forEach((score, index) => {
-        const y = startY + index * lineHeight;
-        ctx.fillText(`Username: ${score.username}, Location: ${score.location}, Level: ${score.level}, Progress: ${score.progress.toFixed(2)}%, Timestamp: ${score.timestamp}`, 50, y);
+    filteredScores.forEach(score => {
+        const row = document.createElement('tr');
+        ['username', 'location', 'level', 'progress', 'timestamp'].forEach(key => {
+            const td = document.createElement('td');
+            td.textContent = score[key];
+            row.appendChild(td);
+        });
+        tbody.appendChild(row);
     });
+}
+
+/* ----------------------------------------
+Display Scores with Filters
+---------------------------------------- */
+function displayScores() {
+    const container = document.createElement('div');
+    container.id = 'scoreContainer';
+
+    const filters = document.createElement('div');
+    filters.id = 'filters';
+
+    // Search by username
+    const usernameFilter = document.createElement('input');
+    usernameFilter.placeholder = 'Search by username...';
+    usernameFilter.addEventListener('input', filterScores);
+    filters.appendChild(usernameFilter);
+
+    // Sort by level
+    const levelFilter = document.createElement('select');
+    ['All Levels', 1, 2, 3].forEach(level => {
+        const option = document.createElement('option');
+        option.value = level;
+        option.textContent = level;
+        levelFilter.appendChild(option);
+    });
+    levelFilter.addEventListener('change', filterScores);
+    filters.appendChild(levelFilter);
+
+    // Sort by progress
+    const progressFilter = document.createElement('select');
+    ['Highest Progress', 'Lowest Progress'].forEach(optionText => {
+        const option = document.createElement('option');
+        option.value = optionText;
+        option.textContent = optionText;
+        progressFilter.appendChild(option);
+    });
+    progressFilter.addEventListener('change', filterScores);
+    filters.appendChild(progressFilter);
+
+    container.appendChild(filters);
+
+    const table = document.createElement('table');
+
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    ['Username', 'Location', 'Level', 'Progress', 'Timestamp'].forEach(text => {
+        const th = document.createElement('th');
+        th.textContent = text;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    tbody.id = 'scoreTableBody';
+    table.appendChild(tbody);
+
+    container.appendChild(table);
+    document.body.appendChild(container);
+
+    renderScores(); // Render the initial scores
+
+    function filterScores() {
+        let filteredScores = [...scores];
+
+        // Filter by username
+        const usernameQuery = usernameFilter.value.toLowerCase();
+        if (usernameQuery) {
+            filteredScores = filteredScores.filter(score => score.username.toLowerCase().includes(usernameQuery));
+        }
+
+        // Filter by level
+        const level = levelFilter.value;
+        if (level !== 'All Levels') {
+            filteredScores = filteredScores.filter(score => score.level == level);
+        }
+
+        // Sort by progress
+        if (progressFilter.value === 'Highest Progress') {
+            filteredScores.sort((a, b) => b.progress - a.progress);
+        } else if (progressFilter.value === 'Lowest Progress') {
+            filteredScores.sort((a, b) => a.progress - b.progress);
+        }
+
+        renderScores(filteredScores);
+    }
 }
 
 /* ----------------------------------------

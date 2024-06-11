@@ -8,7 +8,7 @@
     },
     {
         "username": "Yohann",
-        "location": "Unable to retrieve your location (Position acquisition timed out).",
+        "location": "Unknown location",
         "level": 1,
         "progress": 31.81706281211038,
         "timestamp": "2024-06-11 14:43:56"
