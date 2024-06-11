@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
         function error(err) {
             console.warn(`ERROR(${err.code}): ${err.message}`);
-            document.getElementById('geolocation').textContent = `Unable to retrieve your location (${err.message}).`;
+            document.getElementById('geolocation').textContent = `Unknown location (${err.message}).`;
         }
     }
 

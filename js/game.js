@@ -26,6 +26,8 @@ const margin = 150;
 let mapButtons = [];
 let loadLevelLock = false;
 let scheduleDiscsLock = false;
+let loadLevelCalled = 0; // Add this line to declare the variable
+let scheduleDiscsCalled = 0; // Add this line to declare the variable
 let startTime;
 let lastProgress = 0; // Add this to track progress
 let scores = []; // Add a variable to store the scores
@@ -491,24 +493,16 @@ function fetchScores() {
 Render Scores on the Screen
 ---------------------------------------- */
 function renderScores() {
-    const startY = 50;
+    const startY = 100;
     const lineHeight = 30;
-    const padding = 50; // Adjust as needed
-    const columnWidth = 150; // Adjust as needed
 
     ctx.fillStyle = '#FFF';
     ctx.font = '20px Arial';
-    ctx.textAlign = 'left'; // Changed to left alignment
+    ctx.textAlign = 'left';
 
     scores.forEach((score, index) => {
         const y = startY + index * lineHeight;
-        const usernameX = padding;
-        const locationX = usernameX + columnWidth;
-        const levelX = locationX + columnWidth;
-        const progressX = levelX + columnWidth;
-        const timestampX = progressX + columnWidth;
-
-        ctx.fillText(`${score.username.padEnd(20)}\t${score.location.padEnd(20)}\t${score.level.toString().padEnd(10)}\t${score.progress.toFixed(2).toString().padEnd(10)}%\t${score.timestamp}`, usernameX, y);
+        ctx.fillText(`Username: ${score.username}, Location: ${score.location}, Level: ${score.level}, Progress: ${score.progress.toFixed(2)}%, Timestamp: ${score.timestamp}`, 50, y);
     });
 }
 

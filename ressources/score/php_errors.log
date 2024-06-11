@@ -35,3 +35,12 @@ Stack trace:
 )
 
 [07-Jun-2024 13:29:27 Europe/Berlin] Score saved successfully
+[11-Jun-2024 14:43:56 Europe/Berlin] Received data: Array
+(
+    [username] => Yohann
+    [location] => Unable to retrieve your location (Position acquisition timed out).
+    [level] => 1
+    [progress] => 31.81706281211
+)
+
+[11-Jun-2024 14:43:56 Europe/Berlin] Score saved successfully
