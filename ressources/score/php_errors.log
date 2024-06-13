@@ -44,3 +44,57 @@ Stack trace:
 )
 
 [11-Jun-2024 14:43:56 Europe/Berlin] Score saved successfully
+[13-Jun-2024 12:28:05 UTC] Received data: Array
+(
+    [username] => JCVD
+    [location] => Switzerland
+    [level] => 1
+    [progress] => 19.550805069773
+)
+
+[13-Jun-2024 12:28:05 UTC] Score saved successfully
+[13-Jun-2024 12:38:38 UTC] Received data: Array
+(
+    [username] => JCVD
+    [location] => Switzerland
+    [level] => 1
+    [progress] => 44.360011200971
+)
+
+[13-Jun-2024 12:38:38 UTC] Score saved successfully
+[13-Jun-2024 12:43:32 UTC] Received data: Array
+(
+    [username] => Test
+    [location] => Switzerland
+    [level] => 1
+    [progress] => 6.4072219592365
+)
+
+[13-Jun-2024 12:43:32 UTC] Score saved successfully
+[13-Jun-2024 12:43:44 UTC] Received data: Array
+(
+    [username] => Test
+    [location] => Switzerland
+    [level] => 3
+    [progress] => 4.7619630342762
+)
+
+[13-Jun-2024 12:43:44 UTC] Score saved successfully
+[13-Jun-2024 12:48:40 UTC] Received data: Array
+(
+    [username] => Test
+    [location] => Switzerland
+    [level] => 1
+    [progress] => 7.3649716308747
+)
+
+[13-Jun-2024 12:48:40 UTC] Score saved successfully
+[13-Jun-2024 12:48:58 UTC] Received data: Array
+(
+    [username] => Test
+    [location] => Switzerland
+    [level] => 2
+    [progress] => 2.2021371358651
+)
+
+[13-Jun-2024 12:48:58 UTC] Score saved successfully

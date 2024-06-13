@@ -1,0 +1,78 @@
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url('../images/background.png'); /* Replace 'background.jpg' with your image URL */
+    background-size: cover;
+    background-position: center;
+    font-family: "Open Sans", sans-serif;
+}
+
+.center-button {
+    padding: 10px 20px;
+    background-color: black;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+canvas {
+    display: block;
+}
+button {
+    position: absolute;
+    top: 10px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.input {
+    margin: 10px;
+    padding: 10px;
+    width: 200px;
+}
+#button {
+    padding: 10px;
+    width: 220px;
+}
+#drop-area {
+    position: relative;
+    border: 2px dashed #fff;
+    border-radius: 50%;
+    padding: 20px;
+    margin: 10px;
+    text-align: center;
+    width: 150px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+#drop-area img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: none;
+}
+#drop-area p {
+    position: absolute;
+    z-index: 1;
+    margin: 0;
+    padding: 0;
+}
+#location {
+    margin-top: 10px;
+    text-align: center;
+}

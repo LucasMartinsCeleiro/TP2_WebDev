@@ -11,7 +11,6 @@ function setCookie(name, value, days) {
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOM fully loaded and parsed');
 
-    // Immediately request geolocation when the page loads
     requestGeolocation();
 
     document.getElementById('loginForm').onsubmit = function(e) {

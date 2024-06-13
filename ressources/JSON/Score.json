@@ -12,5 +12,47 @@
         "level": 1,
         "progress": 31.81706281211038,
         "timestamp": "2024-06-11 14:43:56"
+    },
+    {
+        "username": "JCVD",
+        "location": "Switzerland",
+        "level": 1,
+        "progress": 19.550805069772714,
+        "timestamp": "2024-06-13 12:28:05"
+    },
+    {
+        "username": "JCVD",
+        "location": "Switzerland",
+        "level": 1,
+        "progress": 44.36001120097075,
+        "timestamp": "2024-06-13 12:38:38"
+    },
+    {
+        "username": "Test",
+        "location": "Switzerland",
+        "level": 1,
+        "progress": 6.407221959236467,
+        "timestamp": "2024-06-13 12:43:32"
+    },
+    {
+        "username": "Test",
+        "location": "Switzerland",
+        "level": 3,
+        "progress": 4.7619630342762145,
+        "timestamp": "2024-06-13 12:43:44"
+    },
+    {
+        "username": "Test",
+        "location": "Switzerland",
+        "level": 1,
+        "progress": 7.364971630874676,
+        "timestamp": "2024-06-13 12:48:40"
+    },
+    {
+        "username": "Test",
+        "location": "Switzerland",
+        "level": 2,
+        "progress": 2.2021371358650956,
+        "timestamp": "2024-06-13 12:48:58"
     }
 ]

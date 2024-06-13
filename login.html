@@ -4,75 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #000;
-            color: #fff;
-            font-family: Arial, sans-serif;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        input {
-            margin: 10px;
-            padding: 10px;
-            width: 200px;
-        }
-        button {
-            padding: 10px;
-            width: 220px;
-        }
-        #drop-area {
-            position: relative;
-            border: 2px dashed #fff;
-            border-radius: 50%;
-            padding: 20px;
-            margin: 10px;
-            text-align: center;
-            width: 150px;
-            height: 150px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-        #drop-area img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-            display: none;
-        }
-        #drop-area p {
-            position: absolute;
-            z-index: 1;
-            margin: 0;
-            padding: 0;
-        }
-        #location {
-            margin-top: 10px;
-            text-align: center;
-        }
-    </style>
+    <link rel="stylesheet" href="ressources/style/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
 </head>
 <body>
     <form id="loginForm">
         <div id="drop-area">
             <p>Drag & drop your profile picture here</p>
-            <input type="file" id="fileElem" accept="image/*" style="display:none">
+            <input class="input" type="file" id="fileElem" accept="image/*" style="display:none">
             <img id="avatar" src="" alt="Profile Picture">
         </div>
-        <input type="text" id="username" name="username" placeholder="Username" required>
-        <button type="submit">Login</button>
+        <input class="input center-button" type="text" id="username" name="username" placeholder="Username" required>
+        <button id="button" class="center-button" type="submit">Login</button>
         <div id="location">
             Your location: <span id="geolocation">Not available</span>
         </div>
