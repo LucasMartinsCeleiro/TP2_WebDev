@@ -198,7 +198,7 @@ function update() {
     // Update logic here
 }
 
-function render() {
+function render(hasWon = false) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     switch (currentState) {
         case GameState.HOME:
@@ -214,7 +214,7 @@ function render() {
             renderMapScreen();
             break;
         case GameState.END_OF_GAME:
-            renderEndGameScreen();
+            renderEndGameScreen(hasWon);
             break;
     }
     console.log("render is called, current state: ", currentState);
@@ -261,12 +261,12 @@ function changeState(newState, levelNumber = 1) {
     }
 }
 
-function endGame() {
+function endGame(hasWon = false) {
     console.log("Game Over!");
     stopGameLoop(); // Stop the game loop when the game ends
     stopMusic(); // Stop the music when the game ends
     currentState = GameState.END_OF_GAME;
-    render(); // Render once to ensure the end game screen is displayed
+    render(hasWon); // Pass the win condition to render
     sendScore(); // Send the score to the server at the end of the game
 }
 
@@ -457,7 +457,7 @@ function renderMapScreen() {
     console.log("The current state is ", currentState);
 }
 
-function renderEndGameScreen() {
+function renderEndGameScreen(hasWon = false) {
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -465,18 +465,18 @@ function renderEndGameScreen() {
     // Use the last progress percentage stored
     let progress = lastProgress;
 
-    // Draw the "Game Over" text
+    // Draw the "Game Over" or "You Win" text
     ctx.fillStyle = '#FFF';
     ctx.textAlign = 'center';
     ctx.font = '40px Arial';
-    ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2 - 50);
+    ctx.fillText(hasWon ? "You Win!" : "Game Over", canvas.width / 2, canvas.height / 2 - 50);
 
     // Draw the progress percentage text
     ctx.font = '20px Arial';
     ctx.fillText("Progress: " + progress.toFixed(2) + "%", canvas.width / 2, canvas.height / 2);
 
     // Draw the win/lose message
-    ctx.fillText(lives > 0 ? "You Win!" : "You Lose!", canvas.width / 2, canvas.height / 2 + 50);
+    ctx.fillText(hasWon ? "Congratulations!" : "You Lose!", canvas.width / 2, canvas.height / 2 + 50);
 
     console.log("The current state is ", currentState);
     showHomeButton();
@@ -486,6 +486,12 @@ function renderProgressBar() {
     // Calculate the percentage of progress based on the current time of the music
     let progress = (currentMusic.currentTime / musicDuration) * 100;
     lastProgress = progress;  // Update the last progress percentage
+
+    // End the game if progress is 100%
+    if (progress >= 100) {
+        endGame(true); // End the game with a win condition
+        return;
+    }
 
     // Set the shadow properties for the bar and border
     ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
