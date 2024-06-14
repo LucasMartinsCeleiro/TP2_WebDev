@@ -442,19 +442,11 @@ function renderGameScreen() {
 }
 
 function renderScoreScreen() {
-    if (bgReady) {
+    bgImage.src = '../ressources/images/background.png';
+    bgImage.onload = function () {
         ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
         fetchScores(); // Fetch the scores and render them
-    } else {
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#FFF';
-        ctx.fillText("Loading Background...", canvas.width / 2 - 50, canvas.height / 2);
-        console.log("salut");
-        setTimeout(renderScoreScreen(), 0);
-    }
-    showHomeButton();
-    console.log("The current state is ", currentState);
+    };
 }
 
 function renderMapScreen() {
