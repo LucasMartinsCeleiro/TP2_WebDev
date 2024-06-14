@@ -450,6 +450,8 @@ function renderScoreScreen() {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = '#FFF';
         ctx.fillText("Loading Background...", canvas.width / 2 - 50, canvas.height / 2);
+        console.log("salut");
+        setTimeout(renderScoreScreen(), 0);
     }
     showHomeButton();
     console.log("The current state is ", currentState);
