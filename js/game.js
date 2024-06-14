@@ -437,8 +437,15 @@ function renderGameScreen() {
 }
 
 function renderScoreScreen() {
-    ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
-    fetchScores(); // Fetch the scores and render them
+    if (bgReady) {
+        ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+        fetchScores(); // Fetch the scores and render them
+    } else {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#FFF';
+        ctx.fillText("Loading Background...", canvas.width / 2 - 50, canvas.height / 2);
+    }
     showHomeButton();
     console.log("The current state is ", currentState);
 }
