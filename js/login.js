@@ -187,16 +187,22 @@ document.addEventListener('DOMContentLoaded', (event) => {
     function handleFiles(files) {
         if (files.length) {
             let file = files[0];
-            let reader = new FileReader();
-
-            reader.onload = function(e) {
-                let img = document.getElementById('avatar');
-                img.src = e.target.result;
-                img.style.display = 'block';
-                document.querySelector('#drop-area p').style.display = 'none';
+            const validTypes = ['image/jpeg', 'image/png'];
+            
+            if (validTypes.includes(file.type)) {
+                let reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    let img = document.getElementById('avatar');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    document.querySelector('#drop-area p').style.display = 'none';
+                }
+    
+                reader.readAsDataURL(file);
+            } else {
+                alert("Only PNG and JPG files are allowed.");
             }
-
-            reader.readAsDataURL(file);
         }
-    }
+    }    
 });

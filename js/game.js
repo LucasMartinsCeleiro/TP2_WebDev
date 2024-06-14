@@ -442,7 +442,7 @@ function renderGameScreen() {
 }
 
 function renderScoreScreen() {
-    if (!bgReady) {
+    if (bgReady) {
         ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
         fetchScores(); // Fetch the scores and render them
     } else {
