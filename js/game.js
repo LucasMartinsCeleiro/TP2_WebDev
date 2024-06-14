@@ -267,13 +267,18 @@ function endGame(hasWon = false) {
     stopMusic(); // Stop the music when the game ends
     currentState = GameState.END_OF_GAME;
     render(hasWon); // Pass the win condition to render
-    sendScore(); // Send the score to the server at the end of the game
+    sendScore(hasWon); // Send the score to the server at the end of the game
 }
 
 /* ----------------------------------------
 Send Score to Server
 ---------------------------------------- */
-function sendScore() {
+function sendScore(hasWon = false) {
+    // If the game is won, set progress to 100%
+    if (hasWon) {
+        lastProgress = 100;
+    }
+
     const scoreData = {
         username: username,
         location: geolocation,
@@ -437,17 +442,14 @@ function renderGameScreen() {
 }
 
 function renderScoreScreen() {
-    if (bgReady) {
+    bgImage.src = '../ressources/images/background.png';
+    bgImage.onload = function (){
+        bgReady = true;
         ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
         fetchScores(); // Fetch the scores and render them
-    } else {
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#FFF';
-        ctx.fillText("Loading Background...", canvas.width / 2 - 50, canvas.height / 2);
-    }
-    showHomeButton();
-    console.log("The current state is ", currentState);
+        showHomeButton();
+        console.log("The current state is ", currentState);
+    }    
 }
 
 function renderMapScreen() {
