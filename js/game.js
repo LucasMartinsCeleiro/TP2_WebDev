@@ -442,14 +442,17 @@ function renderGameScreen() {
 }
 
 function renderScoreScreen() {
-    bgImage.src = '../ressources/images/background.png';
-    bgImage.onload = function (){
-        bgReady = true;
+    if (bgReady) {
         ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
         fetchScores(); // Fetch the scores and render them
-        showHomeButton();
-        console.log("The current state is ", currentState);
-    }    
+    } else {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#FFF';
+        ctx.fillText("Loading Background...", canvas.width / 2 - 50, canvas.height / 2);
+    }
+    showHomeButton();
+    console.log("The current state is ", currentState);
 }
 
 function renderMapScreen() {
@@ -776,6 +779,10 @@ bgImage.onload = function () {
     bgReady = true;
     if (currentState === GameState.HOME) {
         renderHomeScreen();
+    } else if (currentState === GameState.SCORE) {
+        renderScoreScreen();
+    } else if (currentState === GameState.MAP) {
+        renderMapScreen();
     }
 };
 bgImage.src = '../ressources/images/background.png'; // Replace with the path to your image
