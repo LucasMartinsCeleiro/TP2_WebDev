@@ -442,14 +442,7 @@ function renderGameScreen() {
 }
 
 function renderScoreScreen() {
-    if (bgReady) {
-        ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
-        fetchScores(); // Fetch the scores and render them
-    } else {
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        fetchScores();
-    }
+    fetchScores(); // Fetch the scores and render them
     showHomeButton();
     console.log("The current state is ", currentState);
 }
