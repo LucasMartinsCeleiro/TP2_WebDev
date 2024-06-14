@@ -448,11 +448,7 @@ function renderScoreScreen() {
     } else {
         ctx.fillStyle = '#000';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#FFF';
-        ctx.fillText("Loading Background...", canvas.width / 2 - 50, canvas.height / 2);
-        console.log("Coucou est-ce que ça marche", bgReady);
-        // Retry rendering after a delay if the background is not ready
-        setTimeout(renderScoreScreen, 100);
+        fetchScores();
     }
     showHomeButton();
     console.log("The current state is ", currentState);
